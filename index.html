@@ -1,0 +1,781 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Metamorphosis: Reading Like a Critic</title>
+<style>
+  :root{
+    --bg:#f7f3ea; --card:#ffffff; --text:#2b2620; --muted:#6b6255; --accent:#8a4b32;
+    --accent-soft:#f0e2d6; --line:#e2dccb; --good:#2f7a4a; --good-bg:#e4f2e8;
+    --bad:#a23b2a; --bad-bg:#f8e3df; --warn:#9a6a12; --warn-bg:#fbf0d9;
+  }
+  *{box-sizing:border-box}
+  html{scroll-behavior:smooth}
+  body{margin:0;background:var(--bg);color:var(--text);font:16px/1.6 system-ui,-apple-system,"Segoe UI",Roboto,Arial,sans-serif}
+  a{color:var(--accent)}
+  header.top{background:var(--card);border-bottom:1px solid var(--line);position:sticky;top:0;z-index:20}
+  .top-inner{max-width:920px;margin:0 auto;padding:10px 20px;display:flex;align-items:center;gap:14px;flex-wrap:wrap}
+  .top-inner strong{font-family:Georgia,serif;font-size:17px}
+  .top-inner nav{display:flex;gap:6px;flex-wrap:wrap;margin-left:auto}
+  .top-inner nav a{font-size:13px;text-decoration:none;padding:4px 9px;border-radius:999px;background:var(--accent-soft);color:var(--accent);font-weight:600}
+  main{max-width:920px;margin:0 auto;padding:24px 20px 80px}
+  h1{font-family:Georgia,serif;font-size:34px;line-height:1.2;margin:10px 0 6px}
+  h2{font-family:Georgia,serif;font-size:25px;margin:0 0 4px}
+  h3{font-size:17px;margin:22px 0 6px}
+  .sub{color:var(--muted);margin:0 0 18px}
+  .card{background:var(--card);border:1px solid var(--line);border-radius:14px;padding:22px 24px;margin:22px 0;box-shadow:0 1px 3px rgba(43,38,32,.06)}
+  .station-head{display:flex;justify-content:space-between;align-items:baseline;gap:10px;flex-wrap:wrap;border-bottom:1px solid var(--line);padding-bottom:10px;margin-bottom:12px}
+  .badge{display:inline-block;font-size:12px;font-weight:700;letter-spacing:.04em;text-transform:uppercase;color:var(--accent);background:var(--accent-soft);padding:3px 10px;border-radius:999px}
+  .time{font-size:14px;color:var(--muted);font-weight:600}
+  .skill{font-size:14px;color:var(--muted);margin:2px 0 10px}
+  .routes{display:grid;grid-template-columns:1fr 1fr;gap:14px}
+  .route{border:2px solid var(--line);border-radius:12px;padding:14px 16px}
+  .route h3{margin:0 0 6px}
+  .route.a{border-color:#c9a48f}
+  .route ol{margin:6px 0 0;padding-left:20px}
+  @media (max-width:700px){.routes{grid-template-columns:1fr}}
+  table.plan{width:100%;border-collapse:collapse;font-size:15px;margin-top:8px}
+  table.plan td,table.plan th{border-bottom:1px solid var(--line);padding:7px 6px;text-align:left;vertical-align:top}
+  table.plan th{font-size:13px;color:var(--muted);text-transform:uppercase;letter-spacing:.04em}
+  .idrow{display:flex;gap:12px;flex-wrap:wrap;margin-top:10px}
+  .idrow label{font-size:14px;font-weight:600;display:flex;flex-direction:column;gap:4px;flex:1;min-width:180px}
+  input[type=text]{font:inherit;padding:8px 10px;border:1px solid var(--line);border-radius:8px;background:#fffdf8}
+  blockquote.extract{margin:12px 0;padding:14px 18px;background:#fbf8f1;border-left:4px solid var(--accent);border-radius:0 10px 10px 0;font-family:Georgia,serif;font-size:16.5px;line-height:1.65}
+  .src{display:block;margin-top:8px;font-family:system-ui,sans-serif;font-size:13px}
+  .q{margin:18px 0;padding-top:4px}
+  .q > p.prompt{font-weight:600;margin:0 0 8px}
+  .opts label{display:flex;gap:10px;align-items:flex-start;padding:8px 10px;border:1px solid var(--line);border-radius:9px;margin:6px 0;cursor:pointer;background:#fffdf8}
+  .opts label:hover{border-color:#c9a48f}
+  .opts input{margin-top:5px}
+  .opts label.right{background:var(--good-bg);border-color:var(--good)}
+  .opts label.wrong{background:var(--bad-bg);border-color:var(--bad)}
+  button{font:inherit;font-size:14px;font-weight:600;border-radius:8px;padding:8px 14px;border:1px solid var(--accent);background:var(--accent);color:#fff;cursor:pointer}
+  button.ghost{background:#fff;color:var(--accent)}
+  button:disabled{opacity:.45;cursor:not-allowed}
+  .btnrow{display:flex;gap:8px;flex-wrap:wrap;margin-top:10px;align-items:center}
+  .fb{margin-top:10px;padding:10px 14px;border-radius:9px;font-size:15px;display:none}
+  .fb.show{display:block}
+  .fb.good{background:var(--good-bg);border:1px solid #b8dcc4}
+  .fb.bad{background:var(--bad-bg);border:1px solid #ecc1b9}
+  .fb.info{background:var(--warn-bg);border:1px solid #ecd6a6}
+  textarea{width:100%;min-height:150px;font:inherit;font-size:15.5px;line-height:1.55;padding:12px;border:1px solid var(--line);border-radius:10px;background:#fffdf8;resize:vertical}
+  textarea.long{min-height:280px}
+  textarea.short{min-height:90px}
+  .wc{font-size:13px;color:var(--muted)}
+  .sample{display:none;margin-top:10px;padding:14px 16px;background:#f3f7f2;border:1px solid #cfe0d1;border-radius:10px}
+  .sample.show{display:block}
+  .sample h4{margin:0 0 6px;font-size:14px;text-transform:uppercase;letter-spacing:.05em;color:var(--good)}
+  .ideas{list-style:none;padding:0;margin:6px 0 0}
+  .ideas li{padding:2px 0}
+  .ideas .y{color:var(--good);font-weight:700}
+  .ideas .n{color:var(--warn);font-weight:700}
+  .criteria label{display:flex;gap:8px;align-items:flex-start;font-size:15px;margin:4px 0}
+  .match-row{display:grid;grid-template-columns:1fr 1.3fr;gap:12px;align-items:center;padding:10px 0;border-bottom:1px solid var(--line)}
+  .match-row .qt{font-family:Georgia,serif}
+  .match-row select{font:inherit;font-size:14px;padding:7px;border-radius:8px;border:1px solid var(--line);width:100%;background:#fffdf8}
+  .match-row.right select{border-color:var(--good);background:var(--good-bg)}
+  .match-row.wrong select{border-color:var(--bad);background:var(--bad-bg)}
+  @media (max-width:700px){.match-row{grid-template-columns:1fr}}
+  .clickable{font-family:Georgia,serif;font-size:16.5px;line-height:2;background:#fbf8f1;border-left:4px solid var(--accent);padding:12px 18px;border-radius:0 10px 10px 0;margin:10px 0}
+  .tok{cursor:pointer;border-radius:4px;padding:1px 2px}
+  .tok:hover{background:#efe6d6}
+  .tok.sel{background:#d9c3ff;outline:1px solid #8e6ad8}
+  .tok.hit{background:var(--good-bg);outline:1px solid var(--good)}
+  .tok.miss{background:var(--warn-bg);outline:1px dashed var(--warn)}
+  .tok.err{background:var(--bad-bg);outline:1px solid var(--bad)}
+  .order-list{list-style:none;padding:0;margin:8px 0}
+  .order-list li{display:flex;align-items:center;gap:10px;padding:9px 10px;border:1px solid var(--line);border-radius:9px;margin:6px 0;background:#fffdf8}
+  .order-list li .num{font-weight:700;color:var(--accent);min-width:22px}
+  .order-list li .txt{flex:1}
+  .order-list li button{padding:3px 9px;font-size:13px}
+  .order-list li.right{background:var(--good-bg);border-color:var(--good)}
+  .order-list li.wrong{background:var(--bad-bg);border-color:var(--bad)}
+  .sym{border:1px solid var(--line);border-radius:10px;padding:12px 14px;margin:10px 0}
+  .sym h4{margin:0 0 4px;font-size:16px}
+  .sym .where{font-size:13.5px;color:var(--muted);margin-bottom:6px}
+  .cmp{width:100%;border-collapse:collapse;font-size:15px}
+  .cmp th,.cmp td{border:1px solid var(--line);padding:8px;vertical-align:top}
+  .cmp th{background:#fbf8f1;text-align:left}
+  .scorebox{font-size:15px}
+  .scorebox td{padding:4px 10px 4px 0}
+  .note{font-size:14px;color:var(--muted)}
+  .saved{font-size:13px;color:var(--muted);margin-left:auto}
+  footer{max-width:920px;margin:0 auto;padding:0 20px 40px;color:var(--muted);font-size:13px}
+  @media print{header.top,.btnrow,button{display:none!important}.sample{display:block!important}.card{break-inside:avoid}}
+</style>
+</head>
+<body>
+
+<header class="top">
+  <div class="top-inner">
+    <strong>Metamorphosis: Reading Like a Critic</strong>
+    <nav>
+      <a href="#start">Start</a><a href="#warmup">Check</a><a href="#s1">1</a><a href="#s2">2</a><a href="#s3">3</a><a href="#s4">4</a><a href="#s5">5</a><a href="#s6">6</a><a href="#finish">Submit</a>
+    </nav>
+  </div>
+</header>
+
+<main>
+
+<section id="start">
+  <span class="badge">English Language &amp; Literature · Independent lesson · 90 minutes</span>
+  <h1>Metamorphosis: Reading Like a Critic</h1>
+  <p class="sub">Franz Kafka (1915), translated by David Wyllie. Read the full text here: <a href="https://glenrai.github.io/kafka/" target="_blank" rel="noopener">glenrai.github.io/kafka</a>. Every extract below has a link that opens it in context.</p>
+
+  <div class="card">
+    <h2>Choose your route</h2>
+    <p>Some of you have finished the novella and some of you have not. Both routes end in the same place.</p>
+    <div class="routes">
+      <div class="route a">
+        <h3>Route A: I have read it</h3>
+        <ol>
+          <li>Do the <a href="#warmup">Reading Check</a> as a warm-up (all three chapters).</li>
+          <li>Work through Stations 1 to 6 in order, following the suggested times.</li>
+          <li>Download your answers and upload them to Toddle.</li>
+        </ol>
+      </div>
+      <div class="route">
+        <h3>Route B: I am still reading</h3>
+        <ol>
+          <li>Open the <a href="https://glenrai.github.io/kafka/" target="_blank" rel="noopener">text</a> and read one chapter at a time.</li>
+          <li>After each chapter, answer that chapter's part of the <a href="#warmup">Reading Check</a>.</li>
+          <li>When you have finished Chapter III, start Station 1. Complete whatever is left before next lesson.</li>
+        </ol>
+      </div>
+    </div>
+
+    <h3>Route A plan</h3>
+    <table class="plan">
+      <tr><th>Time</th><th>Activity</th><th>Skill</th></tr>
+      <tr><td>8 min</td><td>Reading Check</td><td>Secure knowledge of plot and character</td></tr>
+      <tr><td>12 min</td><td>Station 1: The first sentence</td><td>Narrative voice and tone</td></tr>
+      <tr><td>10 min</td><td>Station 2: Words that work</td><td>Analysing word choice and its effect</td></tr>
+      <tr><td>12 min</td><td>Station 3: From "he" to "it"</td><td>Close reading of dialogue and characterisation</td></tr>
+      <tr><td>15 min</td><td>Station 4: Objects that mean more</td><td>Tracing symbols across a whole text</td></tr>
+      <tr><td>15 min</td><td>Station 5: Opening and ending</td><td>Structure and comparison</td></tr>
+      <tr><td>18 min</td><td>Station 6: Building an argument</td><td>Thesis, evidence and analytical writing</td></tr>
+    </table>
+
+    <h3>How checking works</h3>
+    <p class="note">Multiple-choice, matching, ordering and highlighting tasks have a <b>Check</b> button that marks your answer instantly. Written tasks have a <b>Check my ideas</b> button, which looks for key ideas and quotations (it is a rough guide and cannot judge quality), and a <b>Show sample answer</b> button that unlocks once you have written enough. Compare your answer with the sample honestly, then improve it. Your work saves automatically in this browser.</p>
+
+    <div class="idrow">
+      <label>Your name <input type="text" id="stuName" autocomplete="name" placeholder="First and last name"></label>
+      <label>Class <input type="text" id="stuClass" placeholder="e.g. DP1 English A"></label>
+    </div>
+  </div>
+</section>
+
+<!-- READING CHECK -->
+<section id="warmup" class="card">
+  <div class="station-head"><div><span class="badge">Warm-up</span><h2>Reading Check</h2></div><span class="time">8 min (Route A)</span></div>
+  <p class="skill">Route B: answer each chapter's questions straight after you finish reading it.</p>
+  <h3>Chapter I</h3><div data-mcqs="c1"></div>
+  <h3>Chapter II</h3><div data-mcqs="c2"></div>
+  <h3>Chapter III</h3><div data-mcqs="c3"></div>
+</section>
+
+<!-- STATION 1 -->
+<section id="s1" class="card">
+  <div class="station-head"><div><span class="badge">Station 1</span><h2>The first sentence</h2></div><span class="time">12 min</span></div>
+  <p class="skill">Skill: identifying narrative voice and explaining how tone shapes the reader's response.</p>
+  <blockquote class="extract">
+    One morning, when Gregor Samsa woke from troubled dreams, he found himself transformed in his bed into a horrible vermin. He lay on his armour-like back, and if he lifted his head a little he could see his brown belly, slightly domed and divided by arches into stiff sections. The bedding was hardly able to cover it and seemed ready to slide off any moment. His many legs, pitifully thin compared with the size of the rest of him, waved about helplessly as he looked.<br><br>
+    "What's happened to me?" he thought. It wasn't a dream. His room, a proper human room although a little too small, lay peacefully between its four familiar walls.
+    <a class="src" href="https://glenrai.github.io/kafka/#p1" target="_blank" rel="noopener">Chapter I, paragraphs 1 to 2 · read in context ↗</a>
+  </blockquote>
+  <div data-mcqs="s1"></div>
+  <div class="q">
+    <p class="prompt">1.3 Kafka reveals the transformation in the very first sentence. What is the effect of this choice on the reader? Refer to at least one detail from each paragraph. (80 to 120 words)</p>
+    <div data-write="w1" data-min="40"></div>
+  </div>
+</section>
+
+<!-- STATION 2 -->
+<section id="s2" class="card">
+  <div class="station-head"><div><span class="badge">Station 2</span><h2>Words that work</h2></div><span class="time">10 min</span></div>
+  <p class="skill">Skill: moving from "what a quotation says" to "what the writer's choice does".</p>
+  <p>Match each quotation to the effect Kafka's choice creates. Use each effect once. Click the link if you need the context.</p>
+  <div id="matchBox"></div>
+  <div class="btnrow"><button onclick="checkMatch()">Check</button><button class="ghost" onclick="resetMatch()">Reset</button></div>
+  <div class="fb" id="fb-match"></div>
+  <div class="q">
+    <p class="prompt">2.2 Choose one quotation from the table. In two or three sentences, name the technique (for example metaphor, simile, verb choice, rhetorical question) and explain its effect in your own words.</p>
+    <div data-write="w2" data-min="30" data-short="1"></div>
+  </div>
+</section>
+
+<!-- STATION 3 -->
+<section id="s3" class="card">
+  <div class="station-head"><div><span class="badge">Station 3</span><h2>From "he" to "it"</h2></div><span class="time">12 min</span></div>
+  <p class="skill">Skill: reading dialogue closely to track how a character changes, and noticing small words that carry big meanings.</p>
+  <p><b>3.1 Highlight task.</b> In Chapter III, Gregor's sister speaks to her parents twice. Click every word or phrase she uses to <b>point at the creature in the room</b> (Gregor). Click again to unselect. Careful: not every "it" or "he" refers to him.</p>
+  <div class="clickable" id="click1"></div>
+  <a class="src" href="https://glenrai.github.io/kafka/#p35" target="_blank" rel="noopener">Chapter III, from the lodgers' notice onwards · read in context ↗</a>
+  <div class="clickable" id="click2"></div>
+  <a class="src" href="https://glenrai.github.io/kafka/#p42" target="_blank" rel="noopener">Chapter III · read in context ↗</a>
+  <div class="btnrow"><button onclick="checkClick()">Check</button><button class="ghost" onclick="resetClick()">Clear</button></div>
+  <div class="fb" id="fb-click"></div>
+  <div class="q">
+    <p class="prompt">3.2 What does the sister's language reveal about her, and about the family? Why might Kafka end her speech with "he's starting again!"? (120 to 180 words)</p>
+    <div data-write="w3" data-min="50"></div>
+  </div>
+</section>
+
+<!-- STATION 4 -->
+<section id="s4" class="card">
+  <div class="station-head"><div><span class="badge">Station 4</span><h2>Objects that mean more</h2></div><span class="time">15 min</span></div>
+  <p class="skill">Skill: tracing a symbol across the whole text and writing a precise, evidence-based interpretation.</p>
+  <div data-mcqs="s4"></div>
+  <h3>4.2 Symbol tracker</h3>
+  <p>Open each link to revisit the moments where the object appears. For <b>at least three</b> objects, write two or three sentences on what it could represent and how its meaning develops. Refer to the text. Each sample unlocks after 20 words.</p>
+  <div id="symBox"></div>
+</section>
+
+<!-- STATION 5 -->
+<section id="s5" class="card">
+  <div class="station-head"><div><span class="badge">Station 5</span><h2>Opening and ending</h2></div><span class="time">15 min</span></div>
+  <p class="skill">Skill: understanding how structure creates meaning, and comparing two passages.</p>
+  <h3>5.1 Put the story in order</h3>
+  <p>Use the arrows to arrange these moments from first to last.</p>
+  <ul class="order-list" id="orderList"></ul>
+  <div class="btnrow"><button onclick="checkOrder()">Check</button><button class="ghost" onclick="shuffleOrder()">Shuffle</button></div>
+  <div class="fb" id="fb-order"></div>
+
+  <h3>5.2 The last paragraph</h3>
+  <blockquote class="extract">
+    After that, the three of them left the flat together, which was something they had not done for months, and took the tram out to the open country outside the town. They had the tram, filled with warm sunshine, all to themselves. Leant back comfortably on their seats, they discussed their prospects and found that on closer examination they were not at all bad [...] All the time, Grete was becoming livelier. With all the worry they had been having of late her cheeks had become pale, but, while they were talking, Mr. and Mrs. Samsa were struck, almost simultaneously, with the thought of how their daughter was blossoming into a well built and beautiful young lady. They became quieter. Just from each other's glance and almost without knowing it they agreed that it would soon be time to find a good man for her. And, as if in confirmation of their new dreams and good intentions, as soon as they reached their destination Grete was the first to get up and stretch out her young body.
+    <a class="src" href="https://glenrai.github.io/kafka/#p47" target="_blank" rel="noopener">Chapter III, final paragraph · read in context ↗</a>
+  </blockquote>
+  <p>Look back at the opening extract in <a href="#s1">Station 1</a>. Make quick notes in the grid (these are for you; they are included in your download).</p>
+  <table class="cmp">
+    <tr><th style="width:24%"></th><th>Opening (Gregor)</th><th>Ending (the family)</th></tr>
+    <tr><th>Whose body is described?</th><td><textarea class="short" data-grid="g1a"></textarea></td><td><textarea class="short" data-grid="g1b"></textarea></td></tr>
+    <tr><th>Space, light, movement</th><td><textarea class="short" data-grid="g2a"></textarea></td><td><textarea class="short" data-grid="g2b"></textarea></td></tr>
+    <tr><th>Whose point of view?</th><td><textarea class="short" data-grid="g3a"></textarea></td><td><textarea class="short" data-grid="g3b"></textarea></td></tr>
+  </table>
+  <div class="q">
+    <p class="prompt">5.3 How does the ending mirror, and reverse, the opening? What might Kafka want the reader to notice about Grete's future? (150 to 200 words)</p>
+    <div data-write="w5" data-min="60"></div>
+  </div>
+</section>
+
+<!-- STATION 6 -->
+<section id="s6" class="card">
+  <div class="station-head"><div><span class="badge">Station 6</span><h2>Building an argument</h2></div><span class="time">18 min</span></div>
+  <p class="skill">Skill: writing a focused thesis and supporting it with analysed evidence from across the text.</p>
+  <p><b>Question:</b> How does Kafka explore the idea that a person's value depends on what they can provide?</p>
+  <div data-mcqs="s6"></div>
+  <h3>Evidence bank</h3>
+  <p class="note">You may use these, or find your own.</p>
+  <ul>
+    <li>"Gregor converted his success at work straight into cash that he could lay on the table at home" <a href="https://glenrai.github.io/kafka/#p26" target="_blank" rel="noopener">Ch. II ↗</a></li>
+    <li>"there was no longer much warm affection given in return" <a href="https://glenrai.github.io/kafka/#p26" target="_blank" rel="noopener">Ch. II ↗</a></li>
+    <li>"once I've got the money together to pay off my parents' debt to him" <a href="https://glenrai.github.io/kafka/#p5" target="_blank" rel="noopener">Ch. I ↗</a></li>
+    <li>"Another one however, immediately following it, hit squarely and lodged in his back" <a href="https://glenrai.github.io/kafka/#p30" target="_blank" rel="noopener">Ch. II ↗</a></li>
+    <li>"Now then", said Mr. Samsa, "let's give thanks to God for that" <a href="https://glenrai.github.io/kafka/#p46" target="_blank" rel="noopener">Ch. III ↗</a></li>
+    <li>"they discussed their prospects and found that on closer examination they were not at all bad" <a href="https://glenrai.github.io/kafka/#p47" target="_blank" rel="noopener">Ch. III ↗</a></li>
+  </ul>
+  <div class="q">
+    <p class="prompt">6.2 Write one analytical paragraph (200 to 300 words) answering the question. Start with your thesis. Use at least two quotations from different chapters and explain how Kafka's choices create meaning.</p>
+    <div class="criteria" id="criteria"></div>
+    <div data-write="w6" data-min="100" data-long="1"></div>
+  </div>
+</section>
+
+<!-- FINISH -->
+<section id="finish" class="card">
+  <div class="station-head"><div><span class="badge">Finish</span><h2>Download and submit</h2></div></div>
+  <p>Your scores for the auto-checked tasks:</p>
+  <table class="scorebox" id="scoreTable"></table>
+  <ol>
+    <li>Check that your name and class are filled in at the <a href="#start">top</a>.</li>
+    <li>Click <b>Download my answers</b>. You will get a Word file (.docx) with all your written answers and scores.</li>
+    <li>Upload the file to the assignment on <b>Toddle</b>.</li>
+  </ol>
+  <div class="btnrow">
+    <button onclick="downloadDocx()">Download my answers (.docx)</button>
+    <button class="ghost" onclick="clearAll()">Clear everything</button>
+    <span class="saved" id="savedNote"></span>
+  </div>
+  <div class="fb" id="fb-finish"></div>
+</section>
+
+</main>
+<footer>Text: Franz Kafka, <i>Metamorphosis</i>, translated by David Wyllie (public domain).</footer>
+
+<script>
+/* ---------------- DATA ---------------- */
+const MCQS = {
+  c1: [
+    {id:"c1a", q:"What is Gregor's job?", o:["A bank clerk","A travelling salesman","A tailor","A music teacher"], a:1,
+     ex:"He is a travelling salesman for a textile firm; his samples lie on the table in the opening."},
+    {id:"c1b", q:"Why has Gregor not quit the job he hates?", o:["He hopes to be promoted to chief clerk","He is paying off his parents' debt to his boss","He is afraid of his father","He is saving for his own business"], a:1,
+     ex:"\"once I've got the money together to pay off my parents' debt to him\" (paragraph 5)."},
+    {id:"c1c", q:"Who comes to the flat from Gregor's firm?", o:["The boss","A doctor","The chief clerk","A lodger"], a:2,
+     ex:"The chief clerk arrives within hours and flees when he sees Gregor."}
+  ],
+  c2: [
+    {id:"c2a", q:"Who takes responsibility for feeding Gregor?", o:["His mother","His father","The maid","His sister"], a:3,
+     ex:"His sister tests what he will eat, bringing a range of foods on a newspaper."},
+    {id:"c2b", q:"Why do the mother and sister empty Gregor's room?", o:["To punish him","To give him more space to crawl","To rent it out","To clean it for the doctor"], a:1,
+     ex:"The sister wants to give him space to crawl; the mother worries it suggests they have given up hope."},
+    {id:"c2c", q:"What does Gregor's father throw at him at the end of Chapter II?", o:["His walking stick","Newspapers","Apples","Shoes"], a:2,
+     ex:"He bombards Gregor with apples, and one lodges in his back."}
+  ],
+  c3: [
+    {id:"c3a", q:"Why do the three gentlemen give notice?", o:["The rent goes up","They see Gregor while the sister is playing the violin","The food is poor","The cleaner is rude to them"], a:1,
+     ex:"Drawn by the music, Gregor crawls into the living room and the middle gentleman sees him."},
+    {id:"c3b", q:"Who discovers that Gregor has died?", o:["His sister","His mother","The cleaner","The middle gentleman"], a:2,
+     ex:"The cleaner pokes him with her broom and shouts that he is \"stone dead\"."},
+    {id:"c3c", q:"What does the family do on the day of Gregor's death?", o:["They hold a funeral","They take the tram to the countryside","They move house","They go back to work"], a:1,
+     ex:"They write letters excusing themselves from work and take the tram out of town."}
+  ],
+  s1: [
+    {id:"s1a", q:"1.1 Which best describes the narrative perspective in the extract?", o:[
+      "First-person: Gregor tells his own story",
+      "Third-person, closely following Gregor's perceptions and thoughts",
+      "Third-person omniscient, moving freely between all the characters' minds",
+      "Second-person, addressing the reader as \"you\""], a:1,
+     ex:"We stay with Gregor's perceptions (\"he could see his brown belly\") and slip into his thoughts (\"What's happened to me?\"). Keep this in mind for Station 5: something changes after his death."},
+    {id:"s1b", q:"1.2 Which word best describes the tone in which the transformation is reported?", o:["Hysterical","Matter-of-fact","Joyful","Sarcastic"], a:1,
+     ex:"An impossible event is reported calmly, as though it were ordinary. The gap between the event and the tone is a large part of what makes the text unsettling."}
+  ],
+  s4: [
+    {id:"s4a", q:"4.1 Which is the most precise interpretation of the apple lodged in Gregor's back?", o:[
+      "The apple is a symbol of food.",
+      "The apple is a symbol of sin, as in the Bible, so Kafka shows that Gregor is sinful.",
+      "The apple, left to rot in his flesh because \"no one dared to remove\" it, becomes a lasting sign of the family's violence and neglect, and it weakens Gregor until his death.",
+      "The apple shows that the father is very angry."], a:2,
+     ex:"Option C names what the symbol suggests, anchors it in a quotation, and shows how its meaning develops across the text. A is too literal, D only describes the moment, and B makes a large claim the text does not support.",
+     wrong:{0:"Too literal: it says what the object is, without saying what it suggests.",1:"A biblical echo is possible, but this claim jumps to a conclusion (Gregor is sinful) that the text does not support.",3:"True, but this describes the moment. It does not interpret the apple as a symbol or follow it through the text."}}
+  ],
+  s6: [
+    {id:"s6a", q:"6.1 Which is the strongest thesis for the question?", o:[
+      "Metamorphosis is a story about a man who turns into an insect and his family's reaction.",
+      "Kafka shows that the family is very selfish and bad.",
+      "Through the family's changing treatment of Gregor, from dependence in Chapter I to relief at his death, Kafka suggests that in a world driven by work and money, love can become conditional on usefulness.",
+      "Kafka uses many literary devices, such as similes, metaphors and symbols, to explore value."], a:2,
+     ex:"C makes an arguable claim, answers the question directly, and maps out how the argument will move through the text.",
+     wrong:{0:"This is a plot summary. A thesis needs a claim someone could argue with.",1:"This is a personal judgement with no reference to how Kafka builds the idea.",3:"Listing devices does not make an argument. What is Kafka saying about value?"}}
+  ]
+};
+
+const MATCH = [
+  {q:"\"some of the first good news that Gregor heard since he had first been <b>incarcerated</b> in his room\"", ref:"p26", ch:"Ch. II", a:0},
+  {q:"\"The same tired man as used to be laying there <b>entombed</b> in his bed\" (Gregor remembering his father)", ref:"p30", ch:"Ch. II", a:1},
+  {q:"\"These little, red apples rolled about on the floor, knocking into each other <b>as if they had electric motors</b>\"", ref:"p30", ch:"Ch. II", a:2},
+  {q:"\"<b>Was he an animal if music could captivate him so?</b>\"", ref:"p34", ch:"Ch. III", a:3},
+  {q:"\"I don't want to call <b>this monster</b> my brother\"", ref:"p35", ch:"Ch. III", a:4},
+  {q:"\"Grete was the first to get up and <b>stretch out her young body</b>\"", ref:"p47", ch:"Ch. III", a:5}
+];
+const EFFECTS = [
+  "Presents the room as a prison, so his condition feels like a punishment for a crime he has not committed",
+  "Shows the father as almost dead in the past, which makes his new strength and authority startling",
+  "Makes a violent attack seem mechanical and absurd, which heightens the horror through strangeness",
+  "Takes us inside Gregor's mind and questions what really makes someone human",
+  "Shows the family distancing itself by renaming him, which makes rejecting him easier",
+  "Ends on an image of new life and growth that replaces Gregor's body as the focus"
+];
+const MATCH_EX = [
+  "\"Incarcerated\" is prison diction. Gregor feels punished without knowing his crime.",
+  "Metaphor: \"entombed\" turns the bed into a tomb. As Gregor declines, his father revives.",
+  "Simile: the comparison to machines makes the violence strange, almost comic, and so more disturbing.",
+  "Rhetorical question in free indirect discourse: the narrator's voice blends with Gregor's thoughts.",
+  "The demonstrative \"this\" and the noun \"monster\" push him away. He is renamed before he is rejected.",
+  "Final image: the focus moves from his dead body to her young one."
+];
+
+/* Highlight task: [t:...] = target, [x:word|note] = trap */
+const CLICK1 = "“Father, Mother”, said his sister, hitting the table with her hand as introduction, “we can’t carry on like this. Maybe you can’t [x:see it|Here “it” means the situation, not Gregor.], but I can. I don’t want to call [t:this monster] my [x:brother|She uses “brother” only to refuse it. The word is not attached to the creature.], all I can say is: we have to try and get rid of [t:it]. We’ve done all that’s humanly possible to look after [t:it] and be patient, I don’t think anyone could accuse us of doing anything wrong.”";
+const CLICK2 = "“[t:It’s] got to go”, shouted his sister, “that’s the only way, Father. You’ve got to get rid of the idea that [t:that’s] Gregor. We’ve only harmed ourselves by [x:believing it|This “it” is the belief that the creature is Gregor: an idea, not the creature.] for so long. How can [t:that] be Gregor? If [t:it] were Gregor [x:he|This “he” is an imagined Gregor, the self-sacrificing brother she wishes he had been.] would have seen long ago that [x:it’s|A grammatical “it” (a dummy subject): “it’s not possible”.] not possible for human beings to live with [t:an animal like that] and [x:he|Again, the imagined Gregor who would have left of his own free will.] would have gone of his own free will. We wouldn’t have a brother any more, then, but we could carry on with our lives and remember [x:him|The imagined, respectable brother the family could mourn.] with respect. As it is [t:this animal] is persecuting us, [t:it’s] driven out our tenants, [t:it] obviously wants to take over the whole flat and force us to sleep on the streets. Father, look, just look”, she suddenly screamed, “[t:he’s] starting again!”";
+
+const ORDER = [
+  "The chief clerk flees from the flat",
+  "The sister tests which foods Gregor will eat",
+  "Gregor clings to the picture of the lady in furs as his room is emptied",
+  "The father bombards Gregor with apples",
+  "The lodgers see Gregor while the sister plays the violin",
+  "The sister says \"we have to try and get rid of it\"",
+  "Gregor dies as the clock tower strikes three",
+  "The family take the tram into the countryside"
+];
+
+const SYMBOLS = [
+  {id:"sy1", name:"The apple", where:[["p30","Ch. II, the bombardment"],["p31","Ch. III, opening"],["p44","Ch. III, his death"]],
+   sample:"Lodged in his back and left to rot because \"no one dared to remove\" it, the apple becomes a lasting sign of the father's violence and the family's neglect. By the night of his death it is \"decayed\" and he can \"hardly feel\" it, so the apple tracks Gregor's slow decline from injury to death."},
+  {id:"sy2", name:"The picture of the lady in furs", where:[["p2","Ch. I, opening"],["p28","Ch. II, emptying the room"]],
+   sample:"The picture is the one possession Gregor fights to keep when his room is emptied; he presses himself against its glass so that it \"would certainly be taken away by no-one\". It may stand for his last link to a human life of desire and ordinary pleasure, and his desperate grip on it shows him holding on to his identity."},
+  {id:"sy3", name:"The door", where:[["p11","Ch. I, opening his door"],["p31","Ch. III, the open door at evening"],["p43","Ch. III, \"At last!\""]],
+   sample:"Doors control who sees whom. In Chapter I Gregor struggles to open his door to rejoin the working world; in Chapter III the door left open in the evening is his only contact with the family; finally his sister locks it with the words \"At last!\". The door charts his growing exclusion from the family."},
+  {id:"sy4", name:"The violin", where:[["p26","Ch. II, the conservatory plan"],["p34","Ch. III, the performance"]],
+   sample:"The violin connects Gregor to his sister and to his secret plan to send her to the conservatory. Her playing draws him out of his room (\"Was he an animal if music could captivate him so?\"), so music suggests a human, spiritual hunger that his family no longer recognises in him. Ironically, this moment of longing leads to his final rejection."},
+  {id:"sy5", name:"The father's uniform", where:[["p30","Ch. II, the father transformed"],["p31","Ch. III, sleeping in uniform"]],
+   sample:"The bank uniform, which the father refuses to take off even at home, shows that he has taken over Gregor's role as breadwinner. He sleeps in it \"as if always ready to serve\", and its growing stains suggest that an identity defined by work is shabby and exhausting, echoing Gregor's own life as a salesman."}
+];
+
+const WRITE = {
+  w1:{title:"1.3 Effect of the first sentence",
+    ideas:[
+      {l:"Immediacy: the shock comes with no build-up", k:["first sentence","immediate","straight away","no build","without warning","opening","instantly","abrupt","no explanation","no warning","at once"]},
+      {l:"The calm, matter-of-fact tone", k:["calm","matter-of-fact","matter of fact","plain","flat","factual","casual","detached","unemotional","ordinary way","simply"]},
+      {l:"Physical detail of the body", k:["armour","belly","legs","helpless","body","physical","thin","domed"]},
+      {l:"Contrast with the ordinary human room", k:["room","familiar","human room","four familiar","everyday","normal","ordinary"]}
+    ], quotes:1,
+    sample:"Kafka places the transformation in the very first sentence, so the reader is denied any build-up or explanation. The impossible event is reported in the calm, factual tone one might use for the weather: Gregor simply \"found himself transformed in his bed into a horrible vermin.\" This flat delivery unsettles us more than drama would, because nobody, including Gregor, treats the event as impossible. The physical details deepen the effect. His \"armour-like back\" and legs \"pitifully thin\" are described with almost clinical precision, while \"helplessly\" introduces his vulnerability early. In the second paragraph Kafka places this body inside \"a proper human room\" with \"four familiar walls\". The contrast between the ordinary room and the monstrous body suggests that the horror of the story will lie in how everyday life carries on around Gregor's condition."},
+  w2:{title:"2.2 Technique and effect",
+    ideas:[
+      {l:"A technique is named", k:["metaphor","simile","verb","noun","rhetorical","question","image","imagery","diction","pronoun","demonstrative","free indirect","word choice","adjective"]},
+      {l:"The effect is explained", k:["suggest","impl","emphasi","reader","effect","shows","conveys","creates","makes us","highlight"]}
+    ], quotes:1,
+    sample:"Any one of these would be a strong answer.\n\n• \"Incarcerated\": This verb belongs to the language of prisons. Kafka suggests that Gregor experiences his room as a cell and his transformation as a punishment, even though he has committed no crime.\n\n• \"Entombed\": The metaphor presents the father as a living corpse during the years Gregor supported him. When he appears upright in his bank uniform, the contrast implies that his weakness depended on Gregor's labour: as the son declines, the father revives.\n\n• \"As if they had electric motors\": The simile compares the apples to machines, which makes the attack strange and almost comic. Because the narrative refuses to sound horrified, the reader feels the violence more sharply.\n\n• \"Was he an animal if music could captivate him so?\": This rhetorical question is free indirect discourse, where the narrator's voice slips into Gregor's thoughts. It invites the reader to ask what makes someone human, and suggests that his inner life survives intact.\n\n• \"This monster\": The demonstrative \"this\" and the noun \"monster\" create distance. Renaming Gregor turns a family member into a threat, which makes it easier for the family to justify getting rid of him.\n\n• \"Stretch out her young body\": The final image presents growth and fresh energy, mirroring the opening, where Gregor's body was the focus. The ending feels like a new beginning, though the reader may notice that it depends on his death."},
+  w3:{title:"3.2 The sister's language",
+    ideas:[
+      {l:"Dehumanising language (it, animal, monster)", k:["dehumani","animal","monster","pronoun","object","thing","non-human","inhuman"]},
+      {l:"How this justifies the family's decision", k:["justif","guilt","excuse","blame","persecut","victim","aggressor","threat","responsib"]},
+      {l:"The slip back to \"he\"", k:["he's starting","slip","back to \"he\"","back to he","still sees","recogni","fragile","contradict","unconscious"]},
+      {l:"The sister's change or new power", k:["power","control","mature","grown","decides","authority","independen","change","transform"]}
+    ], quotes:2,
+    sample:"The sister's language reveals a deliberate process of dehumanisation. She begins by declaring that she does not \"want to call this monster my brother\", then repeats the neutral pronoun \"it\" (\"get rid of it\", \"look after it\"), stripping Gregor of identity. In her second speech he becomes \"an animal\" that \"is persecuting us\", which recasts the victim as the aggressor and lets the family feel justified. Her claim that a real Gregor \"would have gone of his own free will\" imagines a self-sacrificing brother who conveniently suits the family's needs. Yet at the climax she screams \"he's starting again!\" The slip back to \"he\" suggests that her certainty is fragile; at some level she still recognises her brother. Kafka uses this crack in her language to expose the guilt beneath the family's reasoning, and to show how quickly love can become conditional once someone becomes a burden. The scene also marks her own transformation: the girl who once fed him now takes control of the family's decision."},
+  w5:{title:"5.3 Opening and ending",
+    ideas:[
+      {l:"Two bodies: Gregor's and Grete's", k:["body","stretch","young","armour","legs","blossom"]},
+      {l:"Space and light: closed room vs open country", k:["tram","open","sunshine","country","confine","enclos","light","small room","outside"]},
+      {l:"The shift in narrative perspective", k:["perspective","narrat","point of view","focus","family's view","through the family","after his death"]},
+      {l:"Irony about Grete's future", k:["irony","ironic","marry","husband","good man","value","cycle","repeat","asset","use"]}
+    ], quotes:2,
+    sample:"Kafka frames the novella with two bodies and two transformations. The opening fixes on Gregor's body, \"armour-like\", with legs that \"waved about helplessly\", and confines him to a bed in a room \"a little too small\". The ending moves outdoors: the family take \"the tram out to the open country\", the tram is \"filled with warm sunshine\", and the final image is Grete rising to \"stretch out her young body\". Enclosure gives way to open space, grey rain to sunlight, and paralysis to energy. The narrative perspective changes too. For almost the whole text we see through Gregor; after his death the narrator stays with the family, which makes his absence feel complete. The reversal is unsettling. The family's \"new dreams\" include finding \"a good man\" for Grete, so she is now being assessed for her value, much as Gregor was valued for his income. Kafka hints that her metamorphosis into a \"beautiful young lady\" may lead her into a similar cycle."},
+  w6:{title:"6.2 Analytical paragraph",
+    ideas:[
+      {l:"Work, money and usefulness", k:["money","cash","work","earn","income","debt","job","provide","useful","breadwinner","financ"]},
+      {l:"The family's changing treatment of Gregor", k:["family","father","sister","mother","treat","reject","change"]},
+      {l:"Analysis of a technique or word choice", k:["verb","noun","image","metaphor","simile","irony","ironic","pronoun","symbol","diction","word","phrase","tone","juxtapos"]},
+      {l:"A wider idea about value or society", k:["society","capitalis","value","worth","condition","system","humanity","love"]}
+    ], quotes:2,
+    sample:"Through the family's changing treatment of Gregor, Kafka suggests that in a world governed by work and money, love can become conditional on usefulness. In Chapter II, Gregor recalls how he \"converted his success at work straight into cash that he could lay on the table\"; the image of money laid on the table reduces his love to a transaction, and Kafka adds that \"there was no longer much warm affection given in return\". Once he can no longer earn, his value collapses. The father's response is the bombardment of apples, one of which \"lodged in his back\", a wound that no one dares to treat and which slowly kills him. By Chapter III the sister, once his closest ally, insists \"we have to try and get rid of it\"; the shift from \"brother\" to \"it\" shows that the family can only discard him after redefining him as something less than human. Kafka's sharpest irony comes after the death. Mr. Samsa's first words are \"let's give thanks to God for that\", and on the tram the family find that their prospects are \"not at all bad\". Gregor's years of sacrifice have made them independent, and his removal is what sets them free. In this way, Kafka exposes how a system that measures people by what they provide can turn even the closest bonds into a matter of profit and loss."}
+};
+
+const CRITERIA = [
+  "My first sentence is a thesis that answers the question directly",
+  "I use at least two quotations, from different chapters",
+  "I explain how a specific word, image or technique creates meaning",
+  "I connect my analysis back to the question about value",
+  "I write about Kafka's choices (\"Kafka suggests...\"), not only about the characters"
+];
+
+/* ---------------- STATE ---------------- */
+const KEY = "kafka-metamorphosis-ws-v1";
+let S = {name:"", cls:"", mcq:{}, mcqOk:{}, match:{}, matchChecked:false, order:null, click:[], text:{}, grid:{}, crit:{}};
+try { const raw = localStorage.getItem(KEY); if (raw) S = Object.assign(S, JSON.parse(raw)); } catch(e) {}
+let saveTimer = null;
+function save(){
+  clearTimeout(saveTimer);
+  saveTimer = setTimeout(() => {
+    try { localStorage.setItem(KEY, JSON.stringify(S)); note("Saved in this browser " + new Date().toLocaleTimeString([], {hour:"2-digit", minute:"2-digit"})); }
+    catch(e) { note("Autosave unavailable here: download your answers before closing."); }
+    renderScores();
+  }, 300);
+}
+function note(t){ const n = document.getElementById("savedNote"); if (n) n.textContent = t; }
+const esc = s => String(s).replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;").replace(/"/g,"&quot;");
+
+/* ---------------- MCQ ---------------- */
+function renderMCQs(){
+  document.querySelectorAll("[data-mcqs]").forEach(box => {
+    const list = MCQS[box.dataset.mcqs];
+    box.innerHTML = list.map(m => `
+      <div class="q" id="q-${m.id}">
+        <p class="prompt">${esc(m.q)}</p>
+        <div class="opts">${m.o.map((o,i) => `<label><input type="radio" name="${m.id}" value="${i}" ${S.mcq[m.id]===i?"checked":""}> <span>${esc(o)}</span></label>`).join("")}</div>
+        <div class="btnrow"><button onclick="checkMCQ('${m.id}')">Check</button></div>
+        <div class="fb" id="fb-${m.id}"></div>
+      </div>`).join("");
+    box.querySelectorAll("input[type=radio]").forEach(r => r.addEventListener("change", () => {
+      S.mcq[r.name] = +r.value; delete S.mcqOk[r.name];
+      const q = document.getElementById("q-"+r.name); q.querySelectorAll("label").forEach(l => l.classList.remove("right","wrong"));
+      document.getElementById("fb-"+r.name).className = "fb"; save();
+    }));
+  });
+  Object.keys(S.mcqOk).forEach(id => checkMCQ(id, true));
+}
+function findMCQ(id){ for (const k in MCQS) { const m = MCQS[k].find(x => x.id === id); if (m) return m; } }
+function checkMCQ(id, silent){
+  const m = findMCQ(id); const fb = document.getElementById("fb-"+id); const ch = S.mcq[id];
+  if (ch === undefined) { fb.className = "fb show info"; fb.textContent = "Choose an answer first."; return; }
+  const labels = document.querySelectorAll(`#q-${id} label`);
+  labels.forEach(l => l.classList.remove("right","wrong"));
+  const ok = ch === m.a;
+  labels[ch].classList.add(ok ? "right" : "wrong");
+  S.mcqOk[id] = ok;
+  if (ok) { fb.className = "fb show good"; fb.innerHTML = "<b>Correct.</b> " + esc(m.ex); }
+  else {
+    fb.className = "fb show bad";
+    fb.innerHTML = "<b>Not quite.</b> " + esc((m.wrong && m.wrong[ch]) || "Look back at the text and try again.");
+  }
+  if (!silent) save();
+}
+
+/* ---------------- MATCHING ---------------- */
+function renderMatch(){
+  const opts = `<option value="">Choose the effect...</option>` + EFFECTS.map((e,i) => `<option value="${i}">${esc(e)}</option>`).join("");
+  document.getElementById("matchBox").innerHTML = MATCH.map((m,i) => `
+    <div class="match-row" id="mr-${i}">
+      <div class="qt">${m.q} <a class="src" style="display:inline" href="https://glenrai.github.io/kafka/#${m.ref}" target="_blank" rel="noopener">${m.ch} ↗</a></div>
+      <select data-i="${i}">${opts}</select>
+    </div>`).join("");
+  document.querySelectorAll("#matchBox select").forEach(s => {
+    const i = s.dataset.i; if (S.match[i] !== undefined) s.value = S.match[i];
+    s.addEventListener("change", () => { S.match[i] = s.value === "" ? undefined : +s.value; S.matchChecked = false; document.getElementById("mr-"+i).classList.remove("right","wrong"); save(); });
+  });
+  if (S.matchChecked) checkMatch(true);
+}
+function matchScore(){ return MATCH.filter((m,i) => S.match[i] === m.a).length; }
+function checkMatch(silent){
+  let lines = [];
+  MATCH.forEach((m,i) => {
+    const row = document.getElementById("mr-"+i); row.classList.remove("right","wrong");
+    if (S.match[i] === undefined) return;
+    const ok = S.match[i] === m.a; row.classList.add(ok ? "right" : "wrong");
+    if (ok) lines.push("✓ " + esc(MATCH_EX[i]));
+  });
+  const sc = matchScore(); const fb = document.getElementById("fb-match");
+  fb.className = "fb show " + (sc === MATCH.length ? "good" : "bad");
+  fb.innerHTML = `<b>${sc} / ${MATCH.length} correct.</b> ${sc < MATCH.length ? "Red rows need another look. Each effect is used once." : ""}<br>${lines.join("<br>")}`;
+  S.matchChecked = true; if (!silent) save();
+}
+function resetMatch(){ S.match = {}; S.matchChecked = false; renderMatch(); document.getElementById("fb-match").className = "fb"; save(); }
+
+/* ---------------- HIGHLIGHT ---------------- */
+let TOKENS = [];
+function buildClick(elId, src, offset){
+  const el = document.getElementById(elId); let html = ""; let idx = offset;
+  src.split(/(\[[tx]:[^\]]+\])/).forEach(part => {
+    const m = part.match(/^\[([tx]):([^\]|]+)(?:\|([^\]]+))?\]$/);
+    if (m) {
+      TOKENS.push({type:m[1], note:m[3] || ""});
+      html += `<span class="tok" data-k="${idx}">${esc(m[2])}</span>`; idx++;
+    } else {
+      part.split(/(\s+)/).forEach(w => {
+        if (!w || /^\s+$/.test(w)) { html += w; return; }
+        const mm = w.match(/^([^A-Za-z’']*)([A-Za-z’']+)([^A-Za-z’']*)$/);
+        if (!mm) { html += esc(w); return; }
+        TOKENS.push({type:"p", note:""});
+        html += esc(mm[1]) + `<span class="tok" data-k="${idx}">${esc(mm[2])}</span>` + esc(mm[3]); idx++;
+      });
+    }
+  });
+  el.innerHTML = html; return idx;
+}
+function renderClick(){
+  TOKENS = []; const n = buildClick("click1", CLICK1, 0); buildClick("click2", CLICK2, n);
+  document.querySelectorAll(".tok").forEach(t => {
+    const k = +t.dataset.k; if (S.click.includes(k)) t.classList.add("sel");
+    t.addEventListener("click", () => {
+      document.querySelectorAll(".tok").forEach(x => x.classList.remove("hit","miss","err"));
+      if (S.click.includes(k)) { S.click = S.click.filter(x => x !== k); t.classList.remove("sel"); }
+      else { S.click.push(k); t.classList.add("sel"); }
+      save();
+    });
+  });
+}
+function clickScore(){
+  const targets = TOKENS.map((t,i) => t.type === "t" ? i : -1).filter(i => i >= 0);
+  const found = targets.filter(i => S.click.includes(i)).length;
+  const wrong = S.click.filter(i => TOKENS[i] && TOKENS[i].type !== "t").length;
+  return {found, total:targets.length, wrong, score:Math.max(0, found - wrong)};
+}
+function checkClick(){
+  const notes = [];
+  document.querySelectorAll(".tok").forEach(t => {
+    const k = +t.dataset.k, tok = TOKENS[k], sel = S.click.includes(k);
+    t.classList.remove("hit","miss","err","sel");
+    if (tok.type === "t" && sel) t.classList.add("hit");
+    else if (tok.type === "t") t.classList.add("miss");
+    else if (sel) { t.classList.add("err"); notes.push(`<b>${esc(t.textContent)}</b>: ${esc(tok.note || "This word does not point to Gregor.")}`); }
+  });
+  const r = clickScore(); const fb = document.getElementById("fb-click");
+  const perfect = r.found === r.total && r.wrong === 0;
+  fb.className = "fb show " + (perfect ? "good" : "bad");
+  fb.innerHTML = `<b>You found ${r.found} of ${r.total}</b>${r.wrong ? `, with ${r.wrong} word(s) that do not refer to Gregor (red)` : ""}. Green = found, dotted yellow = missed.` +
+    (notes.length ? "<br>" + notes.join("<br>") : "") +
+    `<br><br><b>Look closely at the last word you should have found:</b> after calling him "it", "that" and "this animal", she screams "<b>he’s</b> starting again!" Keep this in mind for 3.2.`;
+  save();
+}
+function resetClick(){ S.click = []; document.querySelectorAll(".tok").forEach(t => t.classList.remove("sel","hit","miss","err")); document.getElementById("fb-click").className = "fb"; save(); }
+
+/* ---------------- ORDER ---------------- */
+function shuffleOrder(){
+  let a = ORDER.map((_,i) => i);
+  do { for (let i = a.length - 1; i > 0; i--) { const j = Math.floor(Math.random() * (i + 1)); [a[i], a[j]] = [a[j], a[i]]; } } while (a.every((v,i) => v === i));
+  S.order = a; S.orderChecked = false; renderOrder(); document.getElementById("fb-order").className = "fb"; save();
+}
+function renderOrder(){
+  if (!S.order) { shuffleOrder(); return; }
+  const ul = document.getElementById("orderList");
+  ul.innerHTML = S.order.map((v,pos) => `<li data-pos="${pos}"><span class="num">${pos+1}</span><span class="txt">${esc(ORDER[v])}</span>
+     <button class="ghost" aria-label="Move up" onclick="moveOrder(${pos},-1)" ${pos===0?"disabled":""}>▲</button>
+     <button class="ghost" aria-label="Move down" onclick="moveOrder(${pos},1)" ${pos===S.order.length-1?"disabled":""}>▼</button></li>`).join("");
+  if (S.orderChecked) checkOrder(true);
+}
+function moveOrder(pos, d){
+  const j = pos + d; if (j < 0 || j >= S.order.length) return;
+  [S.order[pos], S.order[j]] = [S.order[j], S.order[pos]]; S.orderChecked = false;
+  renderOrder(); document.getElementById("fb-order").className = "fb"; save();
+}
+function orderScore(){ return S.order ? S.order.filter((v,i) => v === i).length : 0; }
+function checkOrder(silent){
+  document.querySelectorAll("#orderList li").forEach(li => { const p = +li.dataset.pos; li.classList.remove("right","wrong"); li.classList.add(S.order[p] === p ? "right" : "wrong"); });
+  const sc = orderScore(); const fb = document.getElementById("fb-order");
+  fb.className = "fb show " + (sc === ORDER.length ? "good" : "bad");
+  fb.innerHTML = sc === ORDER.length
+    ? "<b>All 8 in the right place.</b> Notice the shape: each chapter ends with Gregor shut away (driven back into his room, wounded by the apple, locked in to die), and the final event happens after his death, outside the flat, in open air."
+    : `<b>${sc} / ${ORDER.length} in the right place.</b> Red items are in the wrong position. Use the chapter links if you need to check.`;
+  S.orderChecked = true; if (!silent) save();
+}
+
+/* ---------------- WRITING ---------------- */
+const words = t => (t.trim().match(/\S+/g) || []).length;
+const countQuotes = t => (t.match(/“[^”]{3,}”|"[^"]{3,}"|‘[^’]{4,}’/g) || []).length;
+function renderWrite(){
+  document.querySelectorAll("[data-write]").forEach(box => {
+    const id = box.dataset.write, min = +box.dataset.min, cls = box.dataset.long ? "long" : box.dataset.short ? "short" : "";
+    box.innerHTML = `
+      <textarea class="${cls}" id="ta-${id}" placeholder="Write your answer here..."></textarea>
+      <div class="btnrow"><span class="wc" id="wc-${id}"></span>
+        <button class="ghost" onclick="checkIdeas('${id}')">Check my ideas</button>
+        <button id="sb-${id}" onclick="toggleSample('${id}')">Show sample answer</button></div>
+      <div class="fb" id="fb-${id}"></div>
+      <div class="sample" id="sm-${id}"><h4>Sample answer</h4><div>${esc(WRITE[id].sample).replace(/\n/g,"<br>")}</div>
+        <p class="note" style="margin-bottom:0">Compare: Does yours make a clear point? Does it quote precisely? Does it explain the effect of Kafka's choices? Now improve your own answer in the box above.</p></div>`;
+    const ta = document.getElementById("ta-"+id); ta.value = S.text[id] || "";
+    const upd = () => { const n = words(ta.value); document.getElementById("wc-"+id).textContent = n + " words" + (n < min ? ` (sample unlocks at ${min})` : ""); document.getElementById("sb-"+id).disabled = n < min; };
+    ta.addEventListener("input", () => { S.text[id] = ta.value; upd(); save(); }); upd();
+  });
+}
+function checkIdeas(id){
+  const t = (S.text[id] || "").toLowerCase(); const fb = document.getElementById("fb-"+id); const w = WRITE[id];
+  if (words(t) < 10) { fb.className = "fb show info"; fb.textContent = "Write a little more first, then check."; return; }
+  const items = w.ideas.map(i => { const ok = i.k.some(k => t.includes(k.toLowerCase())); return `<li><span class="${ok?"y":"n"}">${ok?"✓":"○"}</span> ${esc(i.l)}${ok?"":" (not found yet)"}</li>`; });
+  const q = countQuotes(S.text[id] || ""); const qok = q >= w.quotes;
+  items.push(`<li><span class="${qok?"y":"n"}">${qok?"✓":"○"}</span> Quotations from the text in quotation marks: ${q} found (aim for at least ${w.quotes})</li>`);
+  fb.className = "fb show info";
+  fb.innerHTML = `<b>Idea check</b> (a rough guide: it looks for key words, so it cannot judge how well you explain)<ul class="ideas">${items.join("")}</ul>`;
+}
+function toggleSample(id){ const s = document.getElementById("sm-"+id); s.classList.toggle("show"); document.getElementById("sb-"+id).textContent = s.classList.contains("show") ? "Hide sample answer" : "Show sample answer"; }
+
+/* ---------------- SYMBOLS ---------------- */
+function renderSymbols(){
+  document.getElementById("symBox").innerHTML = SYMBOLS.map(s => `
+    <div class="sym"><h4>${esc(s.name)}</h4>
+      <div class="where">Appears: ${s.where.map(w => `<a href="https://glenrai.github.io/kafka/#${w[0]}" target="_blank" rel="noopener">${esc(w[1])} ↗</a>`).join(" · ")}</div>
+      <textarea class="short" id="ta-${s.id}" placeholder="What could it represent? How does its meaning develop?"></textarea>
+      <div class="btnrow"><span class="wc" id="wc-${s.id}"></span><button id="sb-${s.id}" onclick="toggleSample('${s.id}')">Show sample answer</button></div>
+      <div class="sample" id="sm-${s.id}"><h4>Sample answer</h4><div>${esc(s.sample)}</div></div>
+    </div>`).join("");
+  SYMBOLS.forEach(s => {
+    const ta = document.getElementById("ta-"+s.id); ta.value = S.text[s.id] || "";
+    const upd = () => { const n = words(ta.value); document.getElementById("wc-"+s.id).textContent = n + " words" + (n < 20 ? " (sample unlocks at 20)" : ""); document.getElementById("sb-"+s.id).disabled = n < 20; };
+    ta.addEventListener("input", () => { S.text[s.id] = ta.value; upd(); save(); }); upd();
+  });
+}
+
+/* ---------------- GRID + CRITERIA + ID ---------------- */
+function renderMisc(){
+  document.querySelectorAll("[data-grid]").forEach(ta => { const k = ta.dataset.grid; ta.value = S.grid[k] || ""; ta.addEventListener("input", () => { S.grid[k] = ta.value; save(); }); });
+  document.getElementById("criteria").innerHTML = "<p class='note' style='margin:0 0 4px'>Tick each one when your paragraph does it:</p>" +
+    CRITERIA.map((c,i) => `<label><input type="checkbox" data-c="${i}" ${S.crit[i]?"checked":""}> ${esc(c)}</label>`).join("");
+  document.querySelectorAll("[data-c]").forEach(cb => cb.addEventListener("change", () => { S.crit[cb.dataset.c] = cb.checked; save(); }));
+  const n = document.getElementById("stuName"), c = document.getElementById("stuClass");
+  n.value = S.name; c.value = S.cls;
+  n.addEventListener("input", () => { S.name = n.value; save(); });
+  c.addEventListener("input", () => { S.cls = c.value; save(); });
+}
+
+/* ---------------- SCORES ---------------- */
+function scores(){
+  const groups = [["Reading Check", ["c1","c2","c3"]], ["Station 1 multiple choice", ["s1"]], ["Station 4 multiple choice", ["s4"]], ["Station 6 thesis choice", ["s6"]]];
+  const rows = groups.map(([label, keys]) => { const ids = keys.flatMap(k => MCQS[k].map(m => m.id)); return [label, ids.filter(i => S.mcqOk[i] === true).length, ids.length]; });
+  rows.splice(2, 0, ["Station 2 matching", matchScore(), MATCH.length]);
+  const c = clickScore(); rows.splice(3, 0, ["Station 3 highlighting", c.score, c.total]);
+  rows.splice(5, 0, ["Station 5 ordering", S.orderChecked ? orderScore() : 0, ORDER.length]);
+  return rows;
+}
+function renderScores(){
+  const t = document.getElementById("scoreTable"); if (!t) return;
+  let tot = 0, max = 0;
+  t.innerHTML = scores().map(r => { tot += r[1]; max += r[2]; return `<tr><td>${esc(r[0])}</td><td><b>${r[1]} / ${r[2]}</b></td></tr>`; }).join("") +
+    `<tr><td><b>Total</b></td><td><b>${tot} / ${max}</b></td></tr>`;
+}
+
+/* ---------------- DOCX EXPORT (no libraries) ---------------- */
+const CRC_TABLE = (() => { const t = new Uint32Array(256); for (let n = 0; n < 256; n++) { let c = n; for (let k = 0; k < 8; k++) c = c & 1 ? 0xEDB88320 ^ (c >>> 1) : c >>> 1; t[n] = c >>> 0; } return t; })();
+function crc32(b){ let c = 0xFFFFFFFF; for (let i = 0; i < b.length; i++) c = CRC_TABLE[(c ^ b[i]) & 0xFF] ^ (c >>> 8); return (c ^ 0xFFFFFFFF) >>> 0; }
+function makeZip(files){
+  const enc = new TextEncoder(); const chunks = []; const central = []; let offset = 0;
+  const u16 = v => [v & 255, (v >>> 8) & 255], u32 = v => [v & 255, (v >>> 8) & 255, (v >>> 16) & 255, (v >>> 24) & 255];
+  files.forEach(f => {
+    const name = enc.encode(f.name), data = enc.encode(f.data), crc = crc32(data);
+    const local = [...u32(0x04034b50), ...u16(20), ...u16(0x0800), ...u16(0), ...u16(0), ...u16(0x21), ...u32(crc), ...u32(data.length), ...u32(data.length), ...u16(name.length), ...u16(0)];
+    chunks.push(new Uint8Array(local), name, data);
+    central.push(new Uint8Array([...u32(0x02014b50), ...u16(20), ...u16(20), ...u16(0x0800), ...u16(0), ...u16(0), ...u16(0x21), ...u32(crc), ...u32(data.length), ...u32(data.length), ...u16(name.length), ...u16(0), ...u16(0), ...u16(0), ...u16(0), ...u32(0), ...u32(offset)]), name);
+    offset += local.length + name.length + data.length;
+  });
+  const cdSize = central.reduce((s, c) => s + c.length, 0);
+  const end = new Uint8Array([...u32(0x06054b50), ...u16(0), ...u16(0), ...u16(files.length), ...u16(files.length), ...u32(cdSize), ...u32(offset), ...u16(0)]);
+  return new Blob([...chunks, ...central, end], {type:"application/vnd.openxmlformats-officedocument.wordprocessingml.document"});
+}
+const xe = s => String(s).replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;").replace(/[\u0000-\u0008\u000B\u000C\u000E-\u001F]/g, "");
+function para(text, o = {}){
+  const rpr = `<w:rPr><w:rFonts w:ascii="Calibri" w:hAnsi="Calibri"/>${o.b?"<w:b/>":""}${o.i?"<w:i/>":""}${o.color?`<w:color w:val="${o.color}"/>`:""}<w:sz w:val="${o.sz||22}"/></w:rPr>`;
+  return String(text).split(/\n/).map(line => `<w:p><w:pPr><w:spacing w:after="${o.after ?? 120}"/></w:pPr><w:r>${rpr}<w:t xml:space="preserve">${xe(line)}</w:t></w:r></w:p>`).join("");
+}
+function buildDocXml(){
+  let b = "";
+  b += para("Metamorphosis: Reading Like a Critic", {b:1, sz:36, color:"8A4B32"});
+  b += para(`Name: ${S.name || "(not given)"}    Class: ${S.cls || "(not given)"}    Date: ${new Date().toLocaleDateString()}`, {sz:22});
+  b += para("Auto-checked scores", {b:1, sz:28, color:"8A4B32"});
+  let tot = 0, max = 0;
+  scores().forEach(r => { tot += r[1]; max += r[2]; b += para(`${r[0]}: ${r[1]} / ${r[2]}`, {after:40}); });
+  b += para(`Total: ${tot} / ${max}`, {b:1});
+  const section = (title, id) => { const t = (S.text[id] || "").trim(); b += para(title, {b:1, sz:26, color:"8A4B32"}); b += para(t || "(no answer)", {i:!t}); b += para(`Word count: ${words(t)}`, {sz:18, color:"6B6255"}); };
+  section("Station 1 · " + WRITE.w1.title, "w1");
+  section("Station 2 · " + WRITE.w2.title, "w2");
+  section("Station 3 · " + WRITE.w3.title, "w3");
+  b += para("Station 4 · Symbol tracker", {b:1, sz:26, color:"8A4B32"});
+  SYMBOLS.forEach(s => { const t = (S.text[s.id] || "").trim(); if (t) { b += para(s.name, {b:1, after:40}); b += para(t); } });
+  if (!SYMBOLS.some(s => (S.text[s.id] || "").trim())) b += para("(no answers)", {i:1});
+  b += para("Station 5 · Comparison notes", {b:1, sz:26, color:"8A4B32"});
+  [["Whose body is described?","g1"],["Space, light, movement","g2"],["Whose point of view?","g3"]].forEach(([l,k]) => {
+    b += para(`${l}  Opening: ${S.grid[k+"a"] || "-"}  |  Ending: ${S.grid[k+"b"] || "-"}`, {after:60});
+  });
+  section("Station 5 · " + WRITE.w5.title, "w5");
+  section("Station 6 · " + WRITE.w6.title, "w6");
+  b += para("Self-check (ticked by student): " + CRITERIA.map((c,i) => (S.crit[i] ? "[x] " : "[ ] ") + c).join("; "), {sz:18, color:"6B6255"});
+  return `<?xml version="1.0" encoding="UTF-8" standalone="yes"?><w:document xmlns:w="http://schemas.openxmlformats.org/wordprocessingml/2006/main"><w:body>${b}<w:sectPr><w:pgSz w:w="11906" w:h="16838"/><w:pgMar w:top="1134" w:right="1134" w:bottom="1134" w:left="1134" w:header="708" w:footer="708" w:gutter="0"/></w:sectPr></w:body></w:document>`;
+}
+function downloadDocx(){
+  const fb = document.getElementById("fb-finish");
+  if (!S.name.trim()) { fb.className = "fb show info"; fb.innerHTML = "Please add your name at the <a href='#start'>top of the page</a> first."; return; }
+  const files = [
+    {name:"[Content_Types].xml", data:`<?xml version="1.0" encoding="UTF-8" standalone="yes"?><Types xmlns="http://schemas.openxmlformats.org/package/2006/content-types"><Default Extension="rels" ContentType="application/vnd.openxmlformats-package.relationships+xml"/><Default Extension="xml" ContentType="application/xml"/><Override PartName="/word/document.xml" ContentType="application/vnd.openxmlformats-officedocument.wordprocessingml.document.main+xml"/></Types>`},
+    {name:"_rels/.rels", data:`<?xml version="1.0" encoding="UTF-8" standalone="yes"?><Relationships xmlns="http://schemas.openxmlformats.org/package/2006/relationships"><Relationship Id="rId1" Type="http://schemas.openxmlformats.org/officeDocument/2006/relationships/officeDocument" Target="word/document.xml"/></Relationships>`},
+    {name:"word/document.xml", data:buildDocXml()}
+  ];
+  const blob = makeZip(files); const a = document.createElement("a");
+  a.href = URL.createObjectURL(blob);
+  a.download = `Metamorphosis - ${S.name.trim().replace(/[^\w\- ]+/g,"")}.docx`;
+  document.body.appendChild(a); a.click(); a.remove(); setTimeout(() => URL.revokeObjectURL(a.href), 2000);
+  fb.className = "fb show good"; fb.innerHTML = "<b>Downloaded.</b> Now upload the .docx file to the assignment on Toddle.";
+}
+function clearAll(){
+  if (!confirm("Delete all your answers on this page? Download them first if you need them.")) return;
+  try { localStorage.removeItem(KEY); } catch(e) {}
+  location.reload();
+}
+
+/* ---------------- INIT ---------------- */
+renderMCQs(); renderMatch(); renderClick(); renderOrder(); renderWrite(); renderSymbols(); renderMisc(); renderScores();
+</script>
+</body>
+</html>
